@@ -28,17 +28,29 @@ public class DashboardController {
     @GetMapping("/")
     public String dashboard(Model model) {
 
+        // Total Books
         model.addAttribute("totalBooks",
                 bookService.countBooks());
 
+        // Total Students
         model.addAttribute("totalStudents",
                 studentService.countStudents());
 
+        // Currently Issued Books
         model.addAttribute("issuedBooks",
                 issuedBookService.countIssuedBooks());
 
+        // Returned Books
+        model.addAttribute("returnedBooks",
+                issuedBookService.getReturnedBooks().size());
+
+        // Overdue Books
         model.addAttribute("overdueBooks",
                 issuedBookService.getOverdueBooks().size());
+
+        // Recent 5 Issued Books
+        model.addAttribute("recentIssuedBooks",
+                issuedBookService.getRecentIssuedBooks());
 
         return "dashboard";
     }

@@ -3,6 +3,7 @@ package com.library.library.management.system.controller;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -11,6 +12,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.library.library.management.system.entity.Book;
 import com.library.library.management.system.entity.Student;
 import com.library.library.management.system.entity.IssuedBook;
+
 import com.library.library.management.system.service.BookService;
 import com.library.library.management.system.service.StudentService;
 import com.library.library.management.system.service.IssuedBookService;
@@ -33,29 +35,59 @@ public class IssuedBookController {
         this.studentService = studentService;
     }
 
-    // Show All Issued Books
+    // Show All Issued Books with Pagination
     @GetMapping
-    public String getAllIssuedBooks(Model model) {
+    public String getAllIssuedBooks(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            Model model) {
 
-        List<IssuedBook> issuedBooks =
-                issuedBookService.getAllIssuedBooks();
+        page = Math.max(page, 0);
+        size = Math.max(1, Math.min(size, 100));
+
+        Page<IssuedBook> issuedBooks =
+                issuedBookService.getAllIssuedBooksPage(page, size);
 
         model.addAttribute("issuedBooks", issuedBooks);
+        model.addAttribute("currentPage", issuedBooks.getNumber());
+        model.addAttribute("totalPages", issuedBooks.getTotalPages());
+        model.addAttribute("totalItems", issuedBooks.getTotalElements());
+        model.addAttribute("pageSize", size);
+        model.addAttribute("keyword", "");
+        model.addAttribute("status", "");
 
         return "issued-books";
     }
 
-    // Search and Filter Issued Books
+    // Search and Filter Issued Books with Pagination
     @GetMapping("/search")
     public String searchIssuedBooks(
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) String status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
             Model model) {
 
-        List<IssuedBook> issuedBooks =
-                issuedBookService.searchIssuedBooks(keyword, status);
+        page = Math.max(page, 0);
+        size = Math.max(1, Math.min(size, 100));
+
+        if (keyword == null) {
+            keyword = "";
+        }
+
+        if (status == null) {
+            status = "";
+        }
+
+        Page<IssuedBook> issuedBooks =
+                issuedBookService.searchIssuedBooksPage(
+                        keyword, status, page, size);
 
         model.addAttribute("issuedBooks", issuedBooks);
+        model.addAttribute("currentPage", issuedBooks.getNumber());
+        model.addAttribute("totalPages", issuedBooks.getTotalPages());
+        model.addAttribute("totalItems", issuedBooks.getTotalElements());
+        model.addAttribute("pageSize", size);
         model.addAttribute("keyword", keyword);
         model.addAttribute("status", status);
 
@@ -127,7 +159,8 @@ public class IssuedBookController {
 
         return "redirect:/issued-books";
     }
- // Show Overdue Books
+
+    // Show Overdue Books
     @GetMapping("/overdue")
     public String getOverdueBooks(Model model) {
 

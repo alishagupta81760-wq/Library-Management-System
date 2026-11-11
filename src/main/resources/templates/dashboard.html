@@ -15,20 +15,25 @@
 
     <!-- Navbar -->
     <nav class="navbar navbar-dark bg-dark">
-
         <div class="container">
 
             <a class="navbar-brand fw-bold" th:href="@{/}">
                 📚 Library Management System
             </a>
 
-            <a th:href="@{/issued-books}"
-               class="btn btn-outline-light btn-sm">
-                Issued Books
-            </a>
+            <div>
+                <a th:href="@{/reports}"
+                   class="btn btn-outline-info btn-sm me-2">
+                    📊 Reports
+                </a>
+
+                <a th:href="@{/issued-books}"
+                   class="btn btn-outline-light btn-sm">
+                    Issued Books
+                </a>
+            </div>
 
         </div>
-
     </nav>
 
     <!-- Main Content -->
@@ -44,10 +49,8 @@
         <div class="row mt-4">
 
             <!-- Total Books -->
-            <div class="col-md-3 mb-3">
-
+            <div class="col-md-4 col-lg mb-3">
                 <div class="card text-white bg-primary shadow h-100">
-
                     <div class="card-body">
 
                         <h5>Total Books</h5>
@@ -60,16 +63,12 @@
                         </a>
 
                     </div>
-
                 </div>
-
             </div>
 
             <!-- Total Students -->
-            <div class="col-md-3 mb-3">
-
+            <div class="col-md-4 col-lg mb-3">
                 <div class="card text-white bg-success shadow h-100">
-
                     <div class="card-body">
 
                         <h5>Total Students</h5>
@@ -82,16 +81,12 @@
                         </a>
 
                     </div>
-
                 </div>
-
             </div>
 
             <!-- Issued Books -->
-            <div class="col-md-3 mb-3">
-
-                <div class="card text-white bg-warning shadow h-100">
-
+            <div class="col-md-4 col-lg mb-3">
+                <div class="card text-dark bg-warning shadow h-100">
                     <div class="card-body">
 
                         <h5>Issued Books</h5>
@@ -100,20 +95,34 @@
 
                         <a th:href="@{/issued-books}"
                            class="btn btn-light btn-sm mt-2">
-                            View Issued Books
+                            View Issued
                         </a>
 
                     </div>
-
                 </div>
+            </div>
 
+            <!-- Returned Books -->
+            <div class="col-md-4 col-lg mb-3">
+                <div class="card text-white bg-info shadow h-100">
+                    <div class="card-body">
+
+                        <h5>Returned Books</h5>
+
+                        <h2 th:text="${returnedBooks}">0</h2>
+
+                        <a th:href="@{/issued-books/search(status='RETURNED')}"
+                           class="btn btn-light btn-sm mt-2">
+                            View Returned
+                        </a>
+
+                    </div>
+                </div>
             </div>
 
             <!-- Overdue Books -->
-            <div class="col-md-3 mb-3">
-
+            <div class="col-md-4 col-lg mb-3">
                 <div class="card text-white bg-danger shadow h-100">
-
                     <div class="card-body">
 
                         <h5>Overdue Books</h5>
@@ -122,10 +131,92 @@
 
                         <a th:href="@{/issued-books/overdue}"
                            class="btn btn-light btn-sm mt-2">
-                            View Overdue Books
+                            View Overdue
                         </a>
 
                     </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Recent Issued Books -->
+        <div class="card shadow mt-4">
+
+            <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+
+                <h5 class="mb-0">
+                    📖 Recent 5 Issued Books
+                </h5>
+
+                <a th:href="@{/issued-books}"
+                   class="btn btn-outline-light btn-sm">
+                    View All
+                </a>
+
+            </div>
+
+            <div class="card-body">
+
+                <div class="table-responsive">
+
+                    <table class="table table-bordered table-hover align-middle">
+
+                        <thead class="table-light">
+                            <tr>
+                                <th>Issue ID</th>
+                                <th>Student Name</th>
+                                <th>Book Title</th>
+                                <th>Issue Date</th>
+                                <th>Due Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            <!-- Recent Records -->
+                            <tr th:each="issue : ${recentIssuedBooks}">
+
+                                <td th:text="${issue.id}"></td>
+
+                                <td th:text="${issue.student.name}"></td>
+
+                                <td th:text="${issue.book.title}"></td>
+
+                                <td th:text="${issue.issueDate}"></td>
+
+                                <td th:text="${issue.dueDate}"></td>
+
+                                <td>
+
+                                    <span th:if="${issue.status == 'ISSUED'}"
+                                          class="badge bg-warning text-dark">
+                                        ISSUED
+                                    </span>
+
+                                    <span th:if="${issue.status == 'RETURNED'}"
+                                          class="badge bg-success">
+                                        RETURNED
+                                    </span>
+
+                                </td>
+
+                            </tr>
+
+                            <!-- Empty Message -->
+                            <tr th:if="${#lists.isEmpty(recentIssuedBooks)}">
+
+                                <td colspan="6"
+                                    class="text-center text-muted py-4">
+                                    No recent issued books found.
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
 
                 </div>
 
@@ -138,7 +229,9 @@
 
             <div class="card-header bg-dark text-white">
 
-                <h5 class="mb-0">Quick Actions</h5>
+                <h5 class="mb-0">
+                    Quick Actions
+                </h5>
 
             </div>
 
@@ -161,12 +254,18 @@
 
                 <a th:href="@{/issued-books}"
                    class="btn btn-danger me-2 mb-2">
-                    ↩ Return Book
+                    ↩ Manage Issued Books
                 </a>
 
                 <a th:href="@{/issued-books/overdue}"
-                   class="btn btn-outline-danger mb-2">
+                   class="btn btn-outline-danger me-2 mb-2">
                     ⚠ Overdue Books
+                </a>
+
+                <!-- NEW: Reports & Analytics -->
+                <a th:href="@{/reports}"
+                   class="btn btn-info text-white mb-2">
+                    📊 Reports & Analytics
                 </a>
 
             </div>

@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Reports - Library Management System</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+</head>
+
+<body class="bg-light">
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand fw-bold" th:href="@{/}">
+                📚 Library Management System
+            </a>
+
+            <a th:href="@{/}" class="btn btn-outline-light btn-sm">
+                Dashboard
+            </a>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+
+        <!-- Heading -->
+        <div class="mb-4">
+            <h2 class="fw-bold">Reports & Analytics</h2>
+            <p class="text-muted">
+                View library records and management statistics.
+            </p>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="row">
+
+            <!-- Total Books -->
+            <div class="col-md-4 col-lg mb-3">
+                <div class="card text-white bg-primary shadow h-100">
+                    <div class="card-body">
+                        <h5>Total Books</h5>
+                        <h2 th:text="${totalBooks}">0</h2>
+
+                        <a th:href="@{/books}"
+                           class="btn btn-light btn-sm mt-2">
+                            View Books
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total Students -->
+            <div class="col-md-4 col-lg mb-3">
+                <div class="card text-white bg-success shadow h-100">
+                    <div class="card-body">
+                        <h5>Total Students</h5>
+                        <h2 th:text="${totalStudents}">0</h2>
+
+                        <a th:href="@{/students}"
+                           class="btn btn-light btn-sm mt-2">
+                            View Students
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Issued Books -->
+            <div class="col-md-4 col-lg mb-3">
+                <div class="card text-dark bg-warning shadow h-100">
+                    <div class="card-body">
+                        <h5>Currently Issued</h5>
+                        <h2 th:text="${issuedBooks}">0</h2>
+
+                        <a th:href="@{/issued-books}"
+                           class="btn btn-light btn-sm mt-2">
+                            View Issued
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Returned Books -->
+            <div class="col-md-4 col-lg mb-3">
+                <div class="card text-white bg-info shadow h-100">
+                    <div class="card-body">
+                        <h5>Returned Books</h5>
+                        <h2 th:text="${returnedBooks}">0</h2>
+
+                        <a th:href="@{/issued-books/search(status='RETURNED')}"
+                           class="btn btn-light btn-sm mt-2">
+                            View Returned
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Overdue Books -->
+            <div class="col-md-4 col-lg mb-3">
+                <div class="card text-white bg-danger shadow h-100">
+                    <div class="card-body">
+                        <h5>Overdue Books</h5>
+                        <h2 th:text="${overdueBooks}">0</h2>
+
+                        <a th:href="@{/issued-books/overdue}"
+                           class="btn btn-light btn-sm mt-2">
+                            View Overdue
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Date-Wise Reports -->
+        <div class="card shadow mt-4">
+
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">📊 Date-Wise Reports</h5>
+            </div>
+
+            <div class="card-body">
+
+                <p class="text-muted">
+                    Select a date range and report type to view library records.
+                </p>
+
+                <!-- Filter Form -->
+                <form th:action="@{/reports}" method="get">
+
+                    <div class="row align-items-end">
+
+                        <!-- From Date -->
+                        <div class="col-md-3 mb-3">
+                            <label for="fromDate" class="form-label fw-bold">
+                                From Date
+                            </label>
+
+                            <input type="date"
+                                   id="fromDate"
+                                   name="fromDate"
+                                   class="form-control"
+                                   th:value="${fromDate}"
+                                   required>
+                        </div>
+
+                        <!-- To Date -->
+                        <div class="col-md-3 mb-3">
+                            <label for="toDate" class="form-label fw-bold">
+                                To Date
+                            </label>
+
+                            <input type="date"
+                                   id="toDate"
+                                   name="toDate"
+                                   class="form-control"
+                                   th:value="${toDate}"
+                                   required>
+                        </div>
+
+                        <!-- Report Type -->
+                        <div class="col-md-3 mb-3">
+                            <label for="reportType" class="form-label fw-bold">
+                                Report Type
+                            </label>
+
+                            <select id="reportType"
+                                    name="reportType"
+                                    class="form-select">
+
+                                <option value="ALL"
+                                        th:selected="${reportType == 'ALL'}">
+                                    All Records
+                                </option>
+
+                                <option value="ISSUED"
+                                        th:selected="${reportType == 'ISSUED'}">
+                                    Issued Books
+                                </option>
+
+                                <option value="RETURNED"
+                                        th:selected="${reportType == 'RETURNED'}">
+                                    Returned Books
+                                </option>
+
+                            </select>
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="col-md-3 mb-3">
+                            <button type="submit"
+                                    class="btn btn-primary w-100">
+                                Generate Report
+                            </button>
+                        </div>
+
+                    </div>
+
+                </form>
+
+                <!-- Error Message -->
+                <div class="alert alert-danger"
+                     th:if="${reportError != null}"
+                     th:text="${reportError}">
+                </div>
+
+                <!-- Report Results -->
+                <div th:if="${reportError == null}">
+
+                    <div class="d-flex justify-content-between align-items-center mt-3 mb-3">
+
+                        <h5 class="mb-0">Report Results</h5>
+
+                        <span class="badge bg-success fs-6">
+                            Total Records:
+                            <span th:text="${reportCount}">0</span>
+                        </span>
+
+                    </div>
+
+                    <div class="table-responsive">
+
+                        <table class="table table-bordered table-striped table-hover">
+
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Student Name</th>
+                                    <th>Roll Number</th>
+                                    <th>Book Title</th>
+                                    <th>Issue Date</th>
+                                    <th>Due Date</th>
+                                    <th>Return Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                <tr th:each="record, iterStat : ${reportResults}">
+
+                                    <td th:text="${iterStat.count}">1</td>
+
+                                    <td th:text="${record.student.name}">
+                                        Student Name
+                                    </td>
+
+                                    <td th:text="${record.student.rollNumber}">
+                                        Roll Number
+                                    </td>
+
+                                    <td th:text="${record.book.title}">
+                                        Book Title
+                                    </td>
+
+                                    <td th:text="${record.issueDate}">
+                                        Issue Date
+                                    </td>
+
+                                    <td th:text="${record.dueDate}">
+                                        Due Date
+                                    </td>
+
+                                    <td>
+                                        <span th:if="${record.returnDate != null}"
+                                              th:text="${record.returnDate}">
+                                        </span>
+
+                                        <span th:if="${record.returnDate == null}"
+                                              class="text-muted">
+                                            Not Returned
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        <span th:if="${record.status == 'ISSUED'}"
+                                              class="badge bg-warning text-dark">
+                                            ISSUED
+                                        </span>
+
+                                        <span th:if="${record.status == 'RETURNED'}"
+                                              class="badge bg-success">
+                                            RETURNED
+                                        </span>
+                                    </td>
+
+                                </tr>
+
+                                <!-- Empty Records -->
+                                <tr th:if="${#lists.isEmpty(reportResults)}">
+                                    <td colspan="8"
+                                        class="text-center text-muted py-4">
+                                        No records found for the selected filters.
+                                    </td>
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Available Reports -->
+        <div class="card shadow mt-4">
+
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0">Available Reports</h5>
+            </div>
+
+            <div class="card-body">
+
+                <div class="list-group">
+
+                    <a th:href="@{/books}"
+                       class="list-group-item list-group-item-action">
+                        📚 Books Report
+                        <span class="text-muted">
+                            - View all book records
+                        </span>
+                    </a>
+
+                    <a th:href="@{/students}"
+                       class="list-group-item list-group-item-action">
+                        👨‍🎓 Students Report
+                        <span class="text-muted">
+                            - View all student records
+                        </span>
+                    </a>
+
+                    <a th:href="@{/issued-books}"
+                       class="list-group-item list-group-item-action">
+                        📖 Issued Books Report
+                        <span class="text-muted">
+                            - View issue and return records
+                        </span>
+                    </a>
+
+                    <a th:href="@{/issued-books/overdue}"
+                       class="list-group-item list-group-item-action">
+                        ⚠ Overdue Books Report
+                        <span class="text-muted">
+                            - View books past their due dates
+                        </span>
+                    </a>
+
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="mt-4 mb-4">
+
+            <a th:href="@{/}"
+               class="btn btn-outline-dark">
+                Dashboard
+            </a>
+
+            <a th:href="@{/books}"
+               class="btn btn-outline-primary">
+                Books
+            </a>
+
+            <a th:href="@{/students}"
+               class="btn btn-outline-primary">
+                Students
+            </a>
+
+            <a th:href="@{/issued-books}"
+               class="btn btn-outline-success">
+                Issued Books
+            </a>
+
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center mb-3">
+            <p class="text-muted">
+                Library Management System | Reports & Analytics
+            </p>
+        </div>
+
+    </div>
+
+</body>
+</html>
