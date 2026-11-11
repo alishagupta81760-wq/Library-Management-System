@@ -2,6 +2,10 @@ package com.library.library.management.system.service;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.library.library.management.system.entity.Book;
@@ -27,10 +31,23 @@ public class BookService {
         return bookRepository.findAll();
     }
 
+    // Get Books with Pagination
+    public Page<Book> getBooksPage(int page, int size) {
+
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by("id").descending()
+        );
+
+        return bookRepository.findAll(pageable);
+    }
+
     // Get Book By ID
     public Book getBookById(Long id) {
         return bookRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Book not found with ID: " + id));
+                .orElseThrow(() -> new RuntimeException(
+                        "Book not found with ID: " + id));
     }
 
     // Delete Book
@@ -55,7 +72,6 @@ public class BookService {
         existingBook.setAuthor(updatedBook.getAuthor());
         existingBook.setIsbn(updatedBook.getIsbn());
         existingBook.setCategory(updatedBook.getCategory());
-
         existingBook.setQuantity(updatedBook.getQuantity());
 
         existingBook.setAvailableCopies(
@@ -81,7 +97,32 @@ public class BookService {
                         searchKeyword
                 );
     }
- // Check duplicate ISBN while adding
+
+    // Search Books with Pagination
+    public Page<Book> searchBooksPage(String keyword, int page, int size) {
+
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by("id").descending()
+        );
+
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return bookRepository.findAll(pageable);
+        }
+
+        String searchKeyword = keyword.trim();
+
+        return bookRepository
+                .findByTitleContainingIgnoreCaseOrAuthorContainingIgnoreCaseOrIsbnContainingIgnoreCase(
+                        searchKeyword,
+                        searchKeyword,
+                        searchKeyword,
+                        pageable
+                );
+    }
+
+    // Check duplicate ISBN while adding
     public boolean isIsbnExists(String isbn) {
         return bookRepository.existsByIsbn(isbn);
     }

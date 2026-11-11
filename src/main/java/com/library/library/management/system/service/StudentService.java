@@ -2,6 +2,10 @@ package com.library.library.management.system.service;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.library.library.management.system.entity.Student;
@@ -27,11 +31,23 @@ public class StudentService {
         return studentRepository.findAll();
     }
 
+    // Get Students with Pagination
+    public Page<Student> getStudentsPage(int page, int size) {
+
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by("id").descending()
+        );
+
+        return studentRepository.findAll(pageable);
+    }
+
     // Get Student By ID
     public Student getStudentById(Long id) {
         return studentRepository.findById(id)
                 .orElseThrow(() ->
-                    new RuntimeException("Student not found with ID: " + id));
+                        new RuntimeException("Student not found with ID: " + id));
     }
 
     // Update Student
@@ -67,6 +83,30 @@ public class StudentService {
                         searchKeyword,
                         searchKeyword,
                         searchKeyword
+                );
+    }
+
+    // Search Students with Pagination
+    public Page<Student> searchStudentsPage(String keyword, int page, int size) {
+
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by("id").descending()
+        );
+
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return studentRepository.findAll(pageable);
+        }
+
+        String searchKeyword = keyword.trim();
+
+        return studentRepository
+                .findByNameContainingIgnoreCaseOrRollNumberContainingIgnoreCaseOrEmailContainingIgnoreCase(
+                        searchKeyword,
+                        searchKeyword,
+                        searchKeyword,
+                        pageable
                 );
     }
 

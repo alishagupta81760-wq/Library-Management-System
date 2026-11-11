@@ -1,7 +1,6 @@
 package com.library.library.management.system.controller;
 
-import java.util.List;
-
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -23,13 +22,24 @@ public class BookController {
         this.bookService = bookService;
     }
 
-    // Display All Books
+    // Display Books with Pagination
     @GetMapping
-    public String getAllBooks(Model model) {
+    public String getAllBooks(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            Model model) {
 
-        List<Book> books = bookService.getAllBooks();
+        page = Math.max(page, 0);
+        size = Math.max(1, Math.min(size, 100));
+
+        Page<Book> books = bookService.getBooksPage(page, size);
 
         model.addAttribute("books", books);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", books.getTotalPages());
+        model.addAttribute("totalItems", books.getTotalElements());
+        model.addAttribute("pageSize", size);
+        model.addAttribute("keyword", "");
 
         return "books";
     }
@@ -37,9 +47,7 @@ public class BookController {
     // Show Add Book Form
     @GetMapping("/add")
     public String showAddBookForm(Model model) {
-
         model.addAttribute("book", new Book());
-
         return "add-book";
     }
 
@@ -49,7 +57,6 @@ public class BookController {
             @Valid @ModelAttribute("book") Book book,
             BindingResult result) {
 
-        // Check Duplicate ISBN
         if (book.getIsbn() != null
                 && !book.getIsbn().isBlank()
                 && bookService.isIsbnExists(book.getIsbn())) {
@@ -61,13 +68,11 @@ public class BookController {
             );
         }
 
-        // Check Validation Errors
         if (result.hasErrors()) {
             return "add-book";
         }
 
         book.setAvailableCopies(book.getQuantity());
-
         bookService.saveBook(book);
 
         return "redirect:/books";
@@ -76,19 +81,17 @@ public class BookController {
     // Delete Book
     @GetMapping("/delete/{id}")
     public String deleteBook(@PathVariable Long id) {
-
         bookService.deleteBook(id);
-
         return "redirect:/books";
     }
 
     // Show Edit Book Form
     @GetMapping("/edit/{id}")
     public String showEditBookForm(
-            @PathVariable Long id, Model model) {
+            @PathVariable Long id,
+            Model model) {
 
         Book book = bookService.getBookById(id);
-
         model.addAttribute("book", book);
 
         return "edit-book";
@@ -103,7 +106,6 @@ public class BookController {
 
         book.setId(id);
 
-        // Check Duplicate ISBN (excluding current book)
         if (book.getIsbn() != null
                 && !book.getIsbn().isBlank()
                 && bookService.isIsbnExistsForOtherBook(book.getIsbn(), id)) {
@@ -115,7 +117,6 @@ public class BookController {
             );
         }
 
-        // Check Validation Errors
         if (result.hasErrors()) {
             return "edit-book";
         }
@@ -125,16 +126,25 @@ public class BookController {
         return "redirect:/books";
     }
 
-    // Search Books
+    // Search Books with Pagination
     @GetMapping("/search")
     public String searchBooks(
             @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
             Model model) {
 
-        List<Book> books = bookService.searchBooks(keyword);
+        page = Math.max(page, 0);
+        size = Math.max(1, Math.min(size, 100));
+
+        Page<Book> books = bookService.searchBooksPage(keyword, page, size);
 
         model.addAttribute("books", books);
-        model.addAttribute("keyword", keyword);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", books.getTotalPages());
+        model.addAttribute("totalItems", books.getTotalElements());
+        model.addAttribute("pageSize", size);
+        model.addAttribute("keyword", keyword == null ? "" : keyword);
 
         return "books";
     }

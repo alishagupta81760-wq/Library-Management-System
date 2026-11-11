@@ -1,7 +1,6 @@
 package com.library.library.management.system.controller;
 
-import java.util.List;
-
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -23,13 +22,24 @@ public class StudentController {
         this.studentService = studentService;
     }
 
-    // Display All Students
+    // Display Students with Pagination
     @GetMapping
-    public String getAllStudents(Model model) {
+    public String getAllStudents(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            Model model) {
 
-        List<Student> students = studentService.getAllStudents();
+        page = Math.max(page, 0);
+        size = Math.max(1, Math.min(size, 100));
+
+        Page<Student> students = studentService.getStudentsPage(page, size);
 
         model.addAttribute("students", students);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", students.getTotalPages());
+        model.addAttribute("totalItems", students.getTotalElements());
+        model.addAttribute("pageSize", size);
+        model.addAttribute("keyword", "");
 
         return "students";
     }
@@ -37,9 +47,7 @@ public class StudentController {
     // Show Add Student Form
     @GetMapping("/add")
     public String showAddStudentForm(Model model) {
-
         model.addAttribute("student", new Student());
-
         return "add-student";
     }
 
@@ -89,7 +97,6 @@ public class StudentController {
             Model model) {
 
         Student student = studentService.getStudentById(id);
-
         model.addAttribute("student", student);
 
         return "edit-student";
@@ -142,22 +149,30 @@ public class StudentController {
     // Delete Student
     @GetMapping("/delete/{id}")
     public String deleteStudent(@PathVariable Long id) {
-
         studentService.deleteStudent(id);
-
         return "redirect:/students";
     }
 
-    // Search Student
+    // Search Students with Pagination
     @GetMapping("/search")
     public String searchStudents(
             @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
             Model model) {
 
-        List<Student> students = studentService.searchStudents(keyword);
+        page = Math.max(page, 0);
+        size = Math.max(1, Math.min(size, 100));
+
+        Page<Student> students =
+                studentService.searchStudentsPage(keyword, page, size);
 
         model.addAttribute("students", students);
-        model.addAttribute("keyword", keyword);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", students.getTotalPages());
+        model.addAttribute("totalItems", students.getTotalElements());
+        model.addAttribute("pageSize", size);
+        model.addAttribute("keyword", keyword == null ? "" : keyword);
 
         return "students";
     }

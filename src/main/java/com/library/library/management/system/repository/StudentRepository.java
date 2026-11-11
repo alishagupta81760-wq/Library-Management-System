@@ -1,7 +1,8 @@
 package com.library.library.management.system.repository;
 
 import java.util.List;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -34,4 +35,7 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
 
     // Check Duplicate Email while updating
     boolean existsByEmailAndIdNot(String email, Long id);
+ // Search Students with Pagination
+    Page<Student> findByNameContainingIgnoreCaseOrRollNumberContainingIgnoreCaseOrEmailContainingIgnoreCase(
+            String name, String rollNumber, String email, Pageable pageable);
 }
