@@ -10,10 +10,22 @@ import com.library.library.management.system.entity.Book;
 @Repository
 public interface BookRepository extends JpaRepository<Book, Long> {
 
+    // Search by Title
     List<Book> findByTitleContainingIgnoreCase(String title);
 
+    // Search by Author
     List<Book> findByAuthorContainingIgnoreCase(String author);
 
+    // Search by ISBN
     List<Book> findByIsbnContainingIgnoreCase(String isbn);
 
+    // Search by Title, Author or ISBN
+    List<Book> findByTitleContainingIgnoreCaseOrAuthorContainingIgnoreCaseOrIsbnContainingIgnoreCase(
+            String title, String author, String isbn);
+
+    // Check duplicate ISBN while adding a new book
+    boolean existsByIsbn(String isbn);
+
+    // Check duplicate ISBN while editing (exclude current book)
+    boolean existsByIsbnAndIdNot(String isbn, Long id);
 }

@@ -53,18 +53,45 @@ public class StudentService {
         studentRepository.deleteById(id);
     }
 
-    // Search Student by Name
+    // Search Student by Name, Roll Number or Email
     public List<Student> searchStudents(String keyword) {
 
         if (keyword == null || keyword.trim().isEmpty()) {
             return studentRepository.findAll();
         }
 
-        return studentRepository.findByNameContainingIgnoreCase(keyword);
+        String searchKeyword = keyword.trim();
+
+        return studentRepository
+                .findByNameContainingIgnoreCaseOrRollNumberContainingIgnoreCaseOrEmailContainingIgnoreCase(
+                        searchKeyword,
+                        searchKeyword,
+                        searchKeyword
+                );
     }
 
     // Count Total Students
     public long countStudents() {
         return studentRepository.count();
+    }
+
+    // Check Duplicate Roll Number while adding
+    public boolean isRollNumberExists(String rollNumber) {
+        return studentRepository.existsByRollNumber(rollNumber);
+    }
+
+    // Check Duplicate Email while adding
+    public boolean isEmailExists(String email) {
+        return studentRepository.existsByEmail(email);
+    }
+
+    // Check Duplicate Roll Number while editing
+    public boolean isRollNumberExistsForOtherStudent(String rollNumber, Long id) {
+        return studentRepository.existsByRollNumberAndIdNot(rollNumber, id);
+    }
+
+    // Check Duplicate Email while editing
+    public boolean isEmailExistsForOtherStudent(String email, Long id) {
+        return studentRepository.existsByEmailAndIdNot(email, id);
     }
 }

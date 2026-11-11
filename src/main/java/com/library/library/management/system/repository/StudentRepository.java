@@ -10,13 +10,28 @@ import com.library.library.management.system.entity.Student;
 @Repository
 public interface StudentRepository extends JpaRepository<Student, Long> {
 
-    // Search Student by Name
+    // Search by Name
     List<Student> findByNameContainingIgnoreCase(String name);
 
-    // Search Student by Roll Number
+    // Search by Roll Number
     List<Student> findByRollNumberContainingIgnoreCase(String rollNumber);
 
-    // Search Student by Email
+    // Search by Email
     List<Student> findByEmailContainingIgnoreCase(String email);
 
+    // Search by Name, Roll Number or Email
+    List<Student> findByNameContainingIgnoreCaseOrRollNumberContainingIgnoreCaseOrEmailContainingIgnoreCase(
+            String name, String rollNumber, String email);
+
+    // Check Duplicate Roll Number
+    boolean existsByRollNumber(String rollNumber);
+
+    // Check Duplicate Email
+    boolean existsByEmail(String email);
+
+    // Check Duplicate Roll Number while updating
+    boolean existsByRollNumberAndIdNot(String rollNumber, Long id);
+
+    // Check Duplicate Email while updating
+    boolean existsByEmailAndIdNot(String email, Long id);
 }

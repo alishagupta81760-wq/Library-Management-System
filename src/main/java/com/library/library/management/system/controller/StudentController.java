@@ -4,7 +4,10 @@ import java.util.List;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+
+import jakarta.validation.Valid;
 
 import com.library.library.management.system.entity.Student;
 import com.library.library.management.system.service.StudentService;
@@ -40,9 +43,39 @@ public class StudentController {
         return "add-student";
     }
 
-    // Save Student
+    // Save Student with Validation and Duplicate Check
     @PostMapping("/save")
-    public String saveStudent(@ModelAttribute Student student) {
+    public String saveStudent(
+            @Valid @ModelAttribute("student") Student student,
+            BindingResult result) {
+
+        // Check Duplicate Roll Number
+        if (student.getRollNumber() != null
+                && !student.getRollNumber().isBlank()
+                && studentService.isRollNumberExists(student.getRollNumber())) {
+
+            result.rejectValue(
+                    "rollNumber",
+                    "duplicate",
+                    "This Roll Number already exists!"
+            );
+        }
+
+        // Check Duplicate Email
+        if (student.getEmail() != null
+                && !student.getEmail().isBlank()
+                && studentService.isEmailExists(student.getEmail())) {
+
+            result.rejectValue(
+                    "email",
+                    "duplicate",
+                    "This Email already exists!"
+            );
+        }
+
+        if (result.hasErrors()) {
+            return "add-student";
+        }
 
         studentService.saveStudent(student);
 
@@ -62,11 +95,44 @@ public class StudentController {
         return "edit-student";
     }
 
-    // Update Student
+    // Update Student with Validation and Duplicate Check
     @PostMapping("/update/{id}")
     public String updateStudent(
             @PathVariable Long id,
-            @ModelAttribute Student student) {
+            @Valid @ModelAttribute("student") Student student,
+            BindingResult result) {
+
+        student.setId(id);
+
+        // Check Duplicate Roll Number
+        if (student.getRollNumber() != null
+                && !student.getRollNumber().isBlank()
+                && studentService.isRollNumberExistsForOtherStudent(
+                        student.getRollNumber(), id)) {
+
+            result.rejectValue(
+                    "rollNumber",
+                    "duplicate",
+                    "This Roll Number already exists!"
+            );
+        }
+
+        // Check Duplicate Email
+        if (student.getEmail() != null
+                && !student.getEmail().isBlank()
+                && studentService.isEmailExistsForOtherStudent(
+                        student.getEmail(), id)) {
+
+            result.rejectValue(
+                    "email",
+                    "duplicate",
+                    "This Email already exists!"
+            );
+        }
+
+        if (result.hasErrors()) {
+            return "edit-student";
+        }
 
         studentService.updateStudent(id, student);
 

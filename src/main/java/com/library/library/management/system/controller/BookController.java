@@ -4,7 +4,10 @@ import java.util.List;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+
+import jakarta.validation.Valid;
 
 import com.library.library.management.system.entity.Book;
 import com.library.library.management.system.service.BookService;
@@ -40,9 +43,28 @@ public class BookController {
         return "add-book";
     }
 
-    // Save Book
+    // Save Book with Validation and Duplicate ISBN Check
     @PostMapping("/save")
-    public String saveBook(@ModelAttribute Book book) {
+    public String saveBook(
+            @Valid @ModelAttribute("book") Book book,
+            BindingResult result) {
+
+        // Check Duplicate ISBN
+        if (book.getIsbn() != null
+                && !book.getIsbn().isBlank()
+                && bookService.isIsbnExists(book.getIsbn())) {
+
+            result.rejectValue(
+                    "isbn",
+                    "duplicate",
+                    "This ISBN already exists!"
+            );
+        }
+
+        // Check Validation Errors
+        if (result.hasErrors()) {
+            return "add-book";
+        }
 
         book.setAvailableCopies(book.getQuantity());
 
@@ -59,9 +81,11 @@ public class BookController {
 
         return "redirect:/books";
     }
- // Show Edit Book Form
+
+    // Show Edit Book Form
     @GetMapping("/edit/{id}")
-    public String showEditBookForm(@PathVariable Long id, Model model) {
+    public String showEditBookForm(
+            @PathVariable Long id, Model model) {
 
         Book book = bookService.getBookById(id);
 
@@ -70,19 +94,42 @@ public class BookController {
         return "edit-book";
     }
 
-    // Update Book
+    // Update Book with Validation and Duplicate ISBN Check
     @PostMapping("/update/{id}")
     public String updateBook(
             @PathVariable Long id,
-            @ModelAttribute Book book) {
+            @Valid @ModelAttribute("book") Book book,
+            BindingResult result) {
+
+        book.setId(id);
+
+        // Check Duplicate ISBN (excluding current book)
+        if (book.getIsbn() != null
+                && !book.getIsbn().isBlank()
+                && bookService.isIsbnExistsForOtherBook(book.getIsbn(), id)) {
+
+            result.rejectValue(
+                    "isbn",
+                    "duplicate",
+                    "This ISBN already exists!"
+            );
+        }
+
+        // Check Validation Errors
+        if (result.hasErrors()) {
+            return "edit-book";
+        }
 
         bookService.updateBook(id, book);
 
         return "redirect:/books";
     }
- // Search Books
+
+    // Search Books
     @GetMapping("/search")
-    public String searchBooks(@RequestParam String keyword, Model model) {
+    public String searchBooks(
+            @RequestParam(required = false) String keyword,
+            Model model) {
 
         List<Book> books = bookService.searchBooks(keyword);
 

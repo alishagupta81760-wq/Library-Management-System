@@ -26,7 +26,6 @@
     <div class="container mt-5">
 
         <div class="row justify-content-center">
-
             <div class="col-md-7 col-lg-6">
 
                 <div class="card shadow-sm">
@@ -43,39 +42,61 @@
 
                             <!-- Book Title -->
                             <div class="mb-3">
+
                                 <label class="form-label">Book Title</label>
 
                                 <input type="text"
                                        th:field="*{title}"
                                        class="form-control"
-                                       placeholder="Enter book title"
-                                       required>
+                                       th:classappend="${#fields.hasErrors('title')} ? 'is-invalid'"
+                                       placeholder="Enter book title">
+
+                                <div class="invalid-feedback"
+                                     th:if="${#fields.hasErrors('title')}"
+                                     th:errors="*{title}">
+                                </div>
+
                             </div>
 
                             <!-- Author -->
                             <div class="mb-3">
+
                                 <label class="form-label">Author Name</label>
 
                                 <input type="text"
                                        th:field="*{author}"
                                        class="form-control"
-                                       placeholder="Enter author name"
-                                       required>
+                                       th:classappend="${#fields.hasErrors('author')} ? 'is-invalid'"
+                                       placeholder="Enter author name">
+
+                                <div class="invalid-feedback"
+                                     th:if="${#fields.hasErrors('author')}"
+                                     th:errors="*{author}">
+                                </div>
+
                             </div>
 
                             <!-- ISBN -->
                             <div class="mb-3">
+
                                 <label class="form-label">ISBN</label>
 
                                 <input type="text"
                                        th:field="*{isbn}"
                                        class="form-control"
-                                       placeholder="Enter ISBN number"
-                                       required>
+                                       th:classappend="${#fields.hasErrors('isbn')} ? 'is-invalid'"
+                                       placeholder="Enter ISBN number">
+
+                                <div class="invalid-feedback"
+                                     th:if="${#fields.hasErrors('isbn')}"
+                                     th:errors="*{isbn}">
+                                </div>
+
                             </div>
 
                             <!-- Category -->
                             <div class="mb-3">
+
                                 <label class="form-label">Category</label>
 
                                 <select th:field="*{category}"
@@ -90,18 +111,26 @@
                                     <option value="Other">Other</option>
 
                                 </select>
+
                             </div>
 
                             <!-- Quantity -->
                             <div class="mb-4">
+
                                 <label class="form-label">Quantity</label>
 
                                 <input type="number"
                                        th:field="*{quantity}"
                                        class="form-control"
+                                       th:classappend="${#fields.hasErrors('quantity')} ? 'is-invalid'"
                                        min="1"
-                                       placeholder="Enter quantity"
-                                       required>
+                                       placeholder="Enter quantity">
+
+                                <div class="invalid-feedback"
+                                     th:if="${#fields.hasErrors('quantity')}"
+                                     th:errors="*{quantity}">
+                                </div>
+
                             </div>
 
                             <!-- Buttons -->
@@ -120,11 +149,9 @@
                         </form>
 
                     </div>
-
                 </div>
 
             </div>
-
         </div>
 
     </div>

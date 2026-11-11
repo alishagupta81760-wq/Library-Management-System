@@ -42,7 +42,8 @@ public class BookService {
     public long countBooks() {
         return bookRepository.count();
     }
- // Update Book
+
+    // Update Book
     public Book updateBook(Long id, Book updatedBook) {
 
         Book existingBook = getBookById(id);
@@ -63,13 +64,30 @@ public class BookService {
 
         return bookRepository.save(existingBook);
     }
- // Search Books
+
+    // Search Books by Title, Author or ISBN
     public List<Book> searchBooks(String keyword) {
 
         if (keyword == null || keyword.trim().isEmpty()) {
             return bookRepository.findAll();
         }
 
-        return bookRepository.findByTitleContainingIgnoreCase(keyword);
+        String searchKeyword = keyword.trim();
+
+        return bookRepository
+                .findByTitleContainingIgnoreCaseOrAuthorContainingIgnoreCaseOrIsbnContainingIgnoreCase(
+                        searchKeyword,
+                        searchKeyword,
+                        searchKeyword
+                );
+    }
+ // Check duplicate ISBN while adding
+    public boolean isIsbnExists(String isbn) {
+        return bookRepository.existsByIsbn(isbn);
+    }
+
+    // Check duplicate ISBN while editing
+    public boolean isIsbnExistsForOtherBook(String isbn, Long id) {
+        return bookRepository.existsByIsbnAndIdNot(isbn, id);
     }
 }
