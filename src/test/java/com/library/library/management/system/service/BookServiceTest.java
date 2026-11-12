@@ -29,6 +29,18 @@ class BookServiceTest {
     private BookService bookService;
 
     @Test
+    void deleteBookArchivesBookAndPreservesItInRepository() {
+        Book existing = new Book();
+        when(bookRepository.findById(4L)).thenReturn(Optional.of(existing));
+        when(bookRepository.save(existing)).thenReturn(existing);
+
+        bookService.deleteBook(4L);
+
+        assertEquals(true, existing.isDeleted());
+        verify(bookRepository).save(existing);
+    }
+
+    @Test
     void saveBookReturnsRepositoryResult() {
         Book book = new Book();
         when(bookRepository.save(book)).thenReturn(book);
@@ -72,16 +84,12 @@ class BookServiceTest {
 
     @Test
     void searchBooksPageTrimsKeywordAndUsesRequestedPage() {
-        when(bookRepository
-                .findByTitleContainingIgnoreCaseOrAuthorContainingIgnoreCaseOrIsbnContainingIgnoreCase(
-                        any(), any(), any(), any()))
+        when(bookRepository.searchActiveBooks(any(), any()))
                 .thenReturn(new PageImpl<>(java.util.List.of()));
 
         bookService.searchBooksPage("  Tolkien  ", 2, 5);
 
-        verify(bookRepository)
-                .findByTitleContainingIgnoreCaseOrAuthorContainingIgnoreCaseOrIsbnContainingIgnoreCase(
-                        "Tolkien", "Tolkien", "Tolkien", PageRequest.of(2, 5,
-                                org.springframework.data.domain.Sort.by("id").descending()));
+        verify(bookRepository).searchActiveBooks("Tolkien", PageRequest.of(2, 5,
+                org.springframework.data.domain.Sort.by("id").descending()));
     }
 }

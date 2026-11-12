@@ -28,7 +28,7 @@ public class BookService {
 
     // Get All Books
     public List<Book> getAllBooks() {
-        return bookRepository.findAll();
+        return bookRepository.findByDeletedFalse();
     }
 
     // Get Books with Pagination
@@ -40,7 +40,7 @@ public class BookService {
                 Sort.by("id").descending()
         );
 
-        return bookRepository.findAll(pageable);
+        return bookRepository.findByDeletedFalse(pageable);
     }
 
     // Get Book By ID
@@ -52,12 +52,14 @@ public class BookService {
 
     // Delete Book
     public void deleteBook(Long id) {
-        bookRepository.deleteById(id);
+        Book book = getBookById(id);
+        book.setDeleted(true);
+        bookRepository.save(book);
     }
 
     // Count Total Books
     public long countBooks() {
-        return bookRepository.count();
+        return bookRepository.countByDeletedFalse();
     }
 
     // Update Book
@@ -85,17 +87,12 @@ public class BookService {
     public List<Book> searchBooks(String keyword) {
 
         if (keyword == null || keyword.trim().isEmpty()) {
-            return bookRepository.findAll();
+            return bookRepository.findByDeletedFalse();
         }
 
         String searchKeyword = keyword.trim();
 
-        return bookRepository
-                .findByTitleContainingIgnoreCaseOrAuthorContainingIgnoreCaseOrIsbnContainingIgnoreCase(
-                        searchKeyword,
-                        searchKeyword,
-                        searchKeyword
-                );
+        return bookRepository.searchActiveBooks(searchKeyword, Pageable.unpaged()).getContent();
     }
 
     // Search Books with Pagination
@@ -108,18 +105,12 @@ public class BookService {
         );
 
         if (keyword == null || keyword.trim().isEmpty()) {
-            return bookRepository.findAll(pageable);
+            return bookRepository.findByDeletedFalse(pageable);
         }
 
         String searchKeyword = keyword.trim();
 
-        return bookRepository
-                .findByTitleContainingIgnoreCaseOrAuthorContainingIgnoreCaseOrIsbnContainingIgnoreCase(
-                        searchKeyword,
-                        searchKeyword,
-                        searchKeyword,
-                        pageable
-                );
+        return bookRepository.searchActiveBooks(searchKeyword, pageable);
     }
 
     // Check duplicate ISBN while adding

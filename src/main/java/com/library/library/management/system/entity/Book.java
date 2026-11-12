@@ -37,6 +37,9 @@ public class Book {
     @Min(value = 0, message = "Available copies cannot be negative")
     private int availableCopies;
 
+    @Column(nullable = false)
+    private boolean deleted = false;
+
     // Default Constructor
     public Book() {
     }
@@ -97,5 +100,13 @@ public class Book {
 
     public void setAvailableCopies(int availableCopies) {
         this.availableCopies = availableCopies;
+    }
+
+    public boolean isDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
     }
 }

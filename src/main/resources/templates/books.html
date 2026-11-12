@@ -30,6 +30,11 @@
     <!-- Main Content -->
     <div class="container mt-5">
 
+        <div class="alert alert-success" role="alert"
+             th:if="${successMessage != null}"
+             th:text="${successMessage}">
+        </div>
+
         <!-- Page Heading -->
         <div class="d-flex justify-content-between align-items-center mb-4">
 

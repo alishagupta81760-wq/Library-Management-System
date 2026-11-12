@@ -2,6 +2,7 @@ package com.library.library.management.system.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -17,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.ui.ExtendedModelMap;
+import org.springframework.web.servlet.mvc.support.RedirectAttributesModelMap;
 import org.springframework.validation.BeanPropertyBindingResult;
 
 @ExtendWith(MockitoExtension.class)
@@ -65,5 +67,17 @@ class BookControllerTest {
         assertEquals("redirect:/books", view);
         assertEquals(4, book.getAvailableCopies());
         verify(bookService).saveBook(book);
+    }
+
+    @Test
+    void deleteBookConfirmsItWasRemovedFromActiveCatalogue() {
+        RedirectAttributesModelMap redirectAttributes = new RedirectAttributesModelMap();
+
+        String view = bookController.deleteBook(7L, redirectAttributes);
+
+        assertEquals("redirect:/books", view);
+        assertEquals("Book removed from the active catalogue.",
+                redirectAttributes.getFlashAttributes().get("successMessage"));
+        verify(bookService).deleteBook(7L);
     }
 }

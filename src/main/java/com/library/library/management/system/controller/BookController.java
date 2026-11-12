@@ -3,6 +3,7 @@ package com.library.library.management.system.controller;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -80,8 +81,9 @@ public class BookController {
 
     // Delete Book
     @GetMapping("/delete/{id}")
-    public String deleteBook(@PathVariable Long id) {
+    public String deleteBook(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         bookService.deleteBook(id);
+        redirectAttributes.addFlashAttribute("successMessage", "Book removed from the active catalogue.");
         return "redirect:/books";
     }
 

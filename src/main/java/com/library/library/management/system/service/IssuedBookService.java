@@ -47,6 +47,10 @@ public class IssuedBookService {
         Book book = bookRepository.findById(bookId)
                 .orElseThrow(() -> new RuntimeException("Book not found"));
 
+        if (book.isDeleted()) {
+            throw new RuntimeException("Book is not available");
+        }
+
         if (book.getAvailableCopies() <= 0) {
             throw new RuntimeException("Book is not available");
         }
