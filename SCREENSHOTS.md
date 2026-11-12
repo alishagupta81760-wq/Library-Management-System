@@ -30,4 +30,4 @@ The screenshots below show the Library Management System running with its curren
 
 ![Overdue books view showing the current empty state](screenshots/overdue-books.png)
 
-Duplicate screenshots were left out. No screenshot of the Reports & Analytics page was available.
+No screenshot of the Reports & Analytics page is included in this gallery.
